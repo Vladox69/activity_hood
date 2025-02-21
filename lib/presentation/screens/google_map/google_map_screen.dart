@@ -12,7 +12,17 @@ class GoogleMapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<CurrentMarkerProvider>(
-      create: (_) => CurrentMarkerProvider(),
+      create: (_) {
+        final controller = CurrentMarkerProvider();
+        controller.onMarkerTap.listen((String id) {
+          Future.microtask(() {
+            if (context.mounted) {
+              _showDescriptionModal(context);
+            }
+          });
+        });
+        return controller;
+      },
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: const PreferredSize(
@@ -28,7 +38,8 @@ class GoogleMapScreen extends StatelessWidget {
             markers: controller.markers,
             onTap: (position) {
               controller.onTap(position);
-              //_showLocationModal(context, position.latitude, position.longitude);
+              _showLocationModal(
+                  context, position.latitude, position.longitude);
             },
           ),
         ),
@@ -49,6 +60,17 @@ class GoogleMapScreen extends StatelessWidget {
         latitude: latitude,
         longitude: longitude,
       ),
+    );
+  }
+
+  void _showDescriptionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const Text("siii"),
     );
   }
 }
