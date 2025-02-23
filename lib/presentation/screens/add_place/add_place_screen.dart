@@ -33,12 +33,11 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
             ElevatedButton(
               onPressed: () {
                 context.read<CurrentMarkerProvider>().saveMarker(
-                      context,
                       _titleController.text,
                       _descriptionController.text,
                       _dateController.text,
                       _startTimeController.text,
-                      _endTimeController.text,
+                      _endTimeController.text
                     );
                 Navigator.pop(context);
               },

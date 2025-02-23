@@ -1,18 +1,14 @@
+import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
 import 'package:activity_hood/presentation/screens/add_place/add_place_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LocationModal extends StatelessWidget {
-  final double latitude;
-  final double longitude;
-
-  const LocationModal({
-    super.key,
-    required this.latitude,
-    required this.longitude,
-  });
+  const LocationModal({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<CurrentMarkerProvider>();
     return FractionallySizedBox(
       widthFactor: 1.0,
       child: Padding(
@@ -34,11 +30,10 @@ class LocationModal extends StatelessWidget {
                 const Icon(Icons.location_on, color: Colors.red),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Latitud: $latitude\nLongitud: $longitude',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
+                    child: Text(
+                  'Latitud: ${state.currentMarker?.position.latitude}\nLongitud: ${state.currentMarker?.position.longitude}',
+                  style: const TextStyle(fontSize: 14),
+                )),
               ],
             ),
             const SizedBox(height: 20),
@@ -71,10 +66,15 @@ class LocationModal extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
+                // Antes de navegar, asegúrate de que el CurrentMarkerProvider está disponible
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AddPlaceScreen(),
+                    builder: (context) => ChangeNotifierProvider.value(
+                      value: Provider.of<CurrentMarkerProvider>(context,
+                          listen: false),
+                      child: const AddPlaceScreen(),
+                    ),
                   ),
                 );
               },

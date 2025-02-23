@@ -1,80 +1,89 @@
 import 'dart:async';
-
+import 'package:activity_hood/models/marker_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:activity_hood/presentation/widgets/location_modal_widget.dart';
+import 'package:flutter/foundation.dart';
 
 class CurrentMarkerProvider extends ChangeNotifier {
-  final Map<MarkerId, Marker> _markers = {};
-  Set<Marker> get markers => {..._markers.values};
+  final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
+  Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
+  Marker? get currentMarker => _currentMarker;
+  Marker? _currentMarker; // Marcador temporal
+  Marker? selectedMarker;
+  final _markersController = StreamController<String>.broadcast();
+  Stream<String> get onMarkerTap => _markersController.stream;
+
   final initialCameraPosition = const CameraPosition(
     target: LatLng(-1.288644, -78.606316),
     zoom: 15,
   );
-  final _markersController = StreamController<String>.broadcast();
-  Stream<String> get onMarkerTap => _markersController.stream;
 
-  final Map<MarkerId, Map<String, String>> _markerDetails = {};
-  Marker? _currentMarker;
-  Marker? selectedMarker;
+  // Getter para el marcador temporal
+  Set<Marker> _generateMarkers() {
+    final Set<Marker> allMarkers = {
+      ..._markersList.map((m) => Marker(
+            markerId: MarkerId(m.id),
+            position: LatLng(m.latitude, m.longitude),
+            infoWindow: InfoWindow(title: m.title, snippet: m.description),
+            onTap: () => _markersController.sink.add(m.id),
+          )),
+    };
 
-  void onTap(LatLng position) {
-    const uuid = Uuid();
-    final id = uuid.v4();
-    final markerId = MarkerId(id);
-    final marker = Marker(
-        markerId: markerId,
-        position: position,
-        onTap: () {
-          _markersController.sink.add(id);
-        });
-    _markers[markerId] = marker;
+    if (_currentMarker != null) {
+      allMarkers.add(_currentMarker!);
+    }
+
+    return allMarkers;
+  }
+
+  void setTemporaryMarker(LatLng position) {
+    const id = "current-marker"; // ID fijo para el marcador temporal
+    _currentMarker = Marker(
+      markerId: const MarkerId(id),
+      position: position,
+      onTap: () {
+        _markersController.sink.add(id);
+      },
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueBlue), // Color diferente
+    );
     notifyListeners();
   }
 
-  void saveMarker(BuildContext context, String title, String description,
-      String date, String startTime, String endTime) {
+  void saveMarker(String title, String description, String date,
+      String startTime, String endTime) {
     if (_currentMarker != null) {
-      final savedMarkerId = MarkerId(DateTime.now().toString()); // ID único
+      print(_currentMarker);
+      final savedMarkerId = const Uuid().v4(); // ID único
+      final newMarker = MarkerModel(
+        id: savedMarkerId,
+        latitude: _currentMarker!.position.latitude,
+        longitude: _currentMarker!.position.longitude,
+        title: title,
+        description: description,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+      );
 
-      _markers[savedMarkerId] = Marker(
-          markerId: savedMarkerId,
-          position: _currentMarker!.position,
-          icon: BitmapDescriptor.defaultMarker);
-
-      _markerDetails[savedMarkerId] = {
-        'title': title,
-        'description': description,
-        'date': date,
-        'startTime': startTime,
-        'endTime': endTime,
-      };
-
-      _currentMarker = null;
+      _markersList.add(newMarker);
+      _currentMarker = null; // Eliminar el marcador temporal
       notifyListeners();
+    } else {
+      print(_currentMarker);
     }
+  }
+
+  void clearMarkers() {
+    _markersList.clear();
+    _currentMarker = null;
+    notifyListeners();
   }
 
   @override
   void dispose() {
     _markersController.close();
     super.dispose();
-  }
-
-  void clearMarkers() {
-    _markers.clear();
-    _markerDetails.clear();
-    notifyListeners();
-  }
-
-  void clearSelectedMarker() {
-    selectedMarker = null;
-    notifyListeners();
-  }
-
-  void onMarkerTapped(BuildContext context, MarkerId markerId) {
-    selectedMarker = _markers[markerId];
-    notifyListeners();
   }
 }
