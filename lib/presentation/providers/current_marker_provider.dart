@@ -9,8 +9,9 @@ class CurrentMarkerProvider extends ChangeNotifier {
   final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
   Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
   Marker? get currentMarker => _currentMarker;
+  MarkerModel? get selectedMarker => _selectedMarker;
   Marker? _currentMarker; // Marcador temporal
-  Marker? selectedMarker;
+  MarkerModel? _selectedMarker;
   final _markersController = StreamController<String>.broadcast();
   Stream<String> get onMarkerTap => _markersController.stream;
 
@@ -42,19 +43,20 @@ class CurrentMarkerProvider extends ChangeNotifier {
     _currentMarker = Marker(
       markerId: const MarkerId(id),
       position: position,
-      onTap: () {
-        _markersController.sink.add(id);
-      },
       icon: BitmapDescriptor.defaultMarkerWithHue(
           BitmapDescriptor.hueBlue), // Color diferente
     );
     notifyListeners();
   }
 
-  void saveMarker(String title, String description, String date,
-      String startTime, String endTime) {
+  void setSelectedMarker(String id) {
+    _selectedMarker = _markersList.firstWhere((marker) => marker.id == id);
+    notifyListeners();
+  }
+
+  void saveMarker(String title, String description, String startDate,
+      String endDate, String startTime, String endTime) {
     if (_currentMarker != null) {
-      print(_currentMarker);
       final savedMarkerId = const Uuid().v4(); // ID único
       final newMarker = MarkerModel(
         id: savedMarkerId,
@@ -62,7 +64,8 @@ class CurrentMarkerProvider extends ChangeNotifier {
         longitude: _currentMarker!.position.longitude,
         title: title,
         description: description,
-        date: date,
+        startDate: startDate,
+        endDate: endDate,
         startTime: startTime,
         endTime: endTime,
       );
@@ -70,8 +73,6 @@ class CurrentMarkerProvider extends ChangeNotifier {
       _markersList.add(newMarker);
       _currentMarker = null; // Eliminar el marcador temporal
       notifyListeners();
-    } else {
-      print(_currentMarker);
     }
   }
 

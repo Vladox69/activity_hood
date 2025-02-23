@@ -12,7 +12,8 @@ class AddPlaceScreen extends StatefulWidget {
 class _AddPlaceScreenState extends State<AddPlaceScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
   final TextEditingController _startTimeController = TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
 
@@ -24,21 +25,34 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(controller: _titleController, decoration: const InputDecoration(labelText: "Título")),
-            TextField(controller: _descriptionController, decoration: const InputDecoration(labelText: "Descripción")),
-            TextField(controller: _dateController, decoration: const InputDecoration(labelText: "Fecha")),
-            TextField(controller: _startTimeController, decoration: const InputDecoration(labelText: "Hora de inicio")),
-            TextField(controller: _endTimeController, decoration: const InputDecoration(labelText: "Hora de fin")),
+            TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: "Título")),
+            TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: "Descripción")),
+            TextField(
+                controller: _startDateController,
+                decoration: const InputDecoration(labelText: "Fecha Inicio")),
+            TextField(
+                controller: _endDateController,
+                decoration: const InputDecoration(labelText: "Fecha Fin")),
+            TextField(
+                controller: _startTimeController,
+                decoration: const InputDecoration(labelText: "Hora de inicio")),
+            TextField(
+                controller: _endTimeController,
+                decoration: const InputDecoration(labelText: "Hora de fin")),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 context.read<CurrentMarkerProvider>().saveMarker(
-                      _titleController.text,
-                      _descriptionController.text,
-                      _dateController.text,
-                      _startTimeController.text,
-                      _endTimeController.text
-                    );
+                    _titleController.text,
+                    _descriptionController.text,
+                    _startDateController.text,
+                    _endDateController.text,
+                    _startTimeController.text,
+                    _endTimeController.text);
                 Navigator.pop(context);
               },
               child: const Text("Guardar Lugar"),

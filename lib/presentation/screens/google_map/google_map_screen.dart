@@ -1,6 +1,7 @@
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
 import 'package:activity_hood/presentation/widgets/app_bar_widget.dart';
 import 'package:activity_hood/presentation/widgets/bottom_bar_widget.dart';
+import 'package:activity_hood/presentation/widgets/description_modal_widget.dart';
 import 'package:activity_hood/presentation/widgets/location_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -17,10 +18,13 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<CurrentMarkerProvider>(context, listen: false)
-        .onMarkerTap
-        .listen((String id) {
-      if (mounted) _showDescriptionModal(context);
+    final markerProvider =
+        Provider.of<CurrentMarkerProvider>(context, listen: false);
+    markerProvider.onMarkerTap.listen((String id) {
+      if (mounted) {
+        markerProvider.setSelectedMarker(id);
+        _showDescriptionModal(context);
+      }
     });
   }
 
@@ -67,7 +71,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => const Text("siii"),
+      builder: (context) => const DescriptionModal(),
     );
   }
 }

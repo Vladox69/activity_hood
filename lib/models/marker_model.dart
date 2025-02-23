@@ -4,7 +4,8 @@ class MarkerModel {
   final double longitude;
   final String title;
   final String description;
-  final String date;
+  final String startDate;
+  final String endDate;
   final String startTime;
   final String endTime;
 
@@ -14,7 +15,8 @@ class MarkerModel {
     required this.longitude,
     required this.title,
     required this.description,
-    required this.date,
+    required this.startDate,
+    required this.endDate,
     required this.startTime,
     required this.endTime,
   });
@@ -27,7 +29,8 @@ class MarkerModel {
       'longitude': longitude,
       'title': title,
       'description': description,
-      'date': date,
+      'startDate': startDate,
+      'endDate': endDate,
       'startTime': startTime,
       'endTime': endTime,
     };
@@ -41,7 +44,8 @@ class MarkerModel {
       longitude: map['longitude'],
       title: map['title'],
       description: map['description'],
-      date: map['date'],
+      startDate: map['startDate'],
+      endDate: map['endDate'],
       startTime: map['startTime'],
       endTime: map['endTime'],
     );
