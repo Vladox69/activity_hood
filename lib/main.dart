@@ -1,6 +1,7 @@
 import 'package:activity_hood/config/theme/app_theme.dart';
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
-import 'package:activity_hood/presentation/screens/google_map/google_map_screen.dart';
+import 'package:activity_hood/presentation/routes/routes.dart';
+import 'package:activity_hood/presentation/routes/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +22,8 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: AppTheme(selectedColor: 0).theme(),
-        home: const GoogleMapScreen(),
+        initialRoute: Routes.SPLASH,
+        routes: appRoutes(),
       ),
     );
   }

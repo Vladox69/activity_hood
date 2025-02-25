@@ -39,7 +39,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
       body: Consumer<CurrentMarkerProvider>(
         builder: (_, controller, __) => GoogleMap(
           initialCameraPosition: controller.initialCameraPosition,
-          myLocationButtonEnabled: false,
+          myLocationButtonEnabled: true,
           myLocationEnabled: true,
           zoomControlsEnabled: false,
           markers: controller.markers,
