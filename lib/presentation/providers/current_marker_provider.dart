@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:activity_hood/models/marker_model.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart';
@@ -14,11 +15,16 @@ class CurrentMarkerProvider extends ChangeNotifier {
   MarkerModel? _selectedMarker;
   final _markersController = StreamController<String>.broadcast();
   Stream<String> get onMarkerTap => _markersController.stream;
+  bool _loading = true;
+  bool get loading => _loading;
+  late bool _gpsEnabled;
+  bool get gpsEnabled => _gpsEnabled;
+  StreamSubscription? _gpsSubscription, _positionSubscription;
 
-  final initialCameraPosition = const CameraPosition(
-    target: LatLng(-1.288644, -78.606316),
-    zoom: 15,
-  );
+  Position? _initialPosition;
+  CameraPosition get initialCameraPosition => CameraPosition(
+      target: LatLng(_initialPosition!.latitude, _initialPosition!.longitude),
+      zoom: 15);
 
   // Getter para el marcador temporal
   Set<Marker> _generateMarkers() {
@@ -36,6 +42,48 @@ class CurrentMarkerProvider extends ChangeNotifier {
     }
 
     return allMarkers;
+  }
+
+  CurrentMarkerProvider() {
+    _init();
+  }
+
+  Future<void> _init() async {
+    _gpsEnabled = await Geolocator.isLocationServiceEnabled();
+    _gpsSubscription =
+        Geolocator.getServiceStatusStream().listen((status) async {
+      _gpsEnabled = status == ServiceStatus.enabled;
+      if (_gpsEnabled) {
+        _initialLocationUpdates();
+      }
+    });
+    _loading = false;
+    _initialLocationUpdates();
+  }
+
+  void _setInitialPosition(Position position) async {
+    if (_gpsEnabled && _initialPosition == null) {
+      _initialPosition = position;
+    }
+  }
+
+  Future<void> turnOnGPS() => Geolocator.openLocationSettings();
+
+  Future<void> _initialLocationUpdates() async {
+    bool initialized = false;
+    await _positionSubscription?.cancel();
+    _positionSubscription = Geolocator.getPositionStream().listen((position) {
+      if (!initialized) {
+        _setInitialPosition(position);
+        initialized = true;
+        notifyListeners();
+      }
+    }, onError: (e) {
+      if (e is LocationServiceDisabledException) {
+        _gpsEnabled = false;
+        notifyListeners();
+      }
+    });
   }
 
   void setTemporaryMarker(LatLng position) {
@@ -84,6 +132,8 @@ class CurrentMarkerProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _positionSubscription?.cancel();
+    _gpsSubscription?.cancel();
     _markersController.close();
     super.dispose();
   }

@@ -11,22 +11,74 @@ class RequestPermisionScreen extends StatefulWidget {
   State<RequestPermisionScreen> createState() => _RequestPermisionScreenState();
 }
 
-class _RequestPermisionScreenState extends State<RequestPermisionScreen> {
+class _RequestPermisionScreenState extends State<RequestPermisionScreen>
+    with WidgetsBindingObserver {
   final _controller = RequestPermisionController(Permission.locationWhenInUse);
   late StreamSubscription _subscription;
+  bool _fromSettings = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _subscription = _controller.onStatusChanged.listen((status) {
-      if (status == PermissionStatus.granted) {
-        Navigator.pushReplacementNamed(context, Routes.HOME);
+      switch (status) {
+        case PermissionStatus.granted:
+          _goToHome();
+          break;
+        case PermissionStatus.permanentlyDenied:
+          //openAppSettings();
+          showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                    title: const Text("INFO"),
+                    content: const Text(
+                        "Ingresa a ajustes para dar los permisos de ubicación"),
+                    actions: [
+                      TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            _fromSettings = await openAppSettings();
+                          },
+                          child: const Text("Ir a configuraciones")),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Cancelar"))
+                    ],
+                  ));
+          break;
+        case PermissionStatus.denied:
+        // TODO: Handle this case.
+        case PermissionStatus.restricted:
+        // TODO: Handle this case.
+        case PermissionStatus.limited:
+        // TODO: Handle this case.
+        case PermissionStatus.provisional:
+        // TODO: Handle this case.
       }
     });
   }
 
+  void _goToHome() {
+    Navigator.pushReplacementNamed(context, Routes.HOME);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed && _fromSettings) {
+      final status = await _controller.check();
+      if (status == PermissionStatus.granted) {
+        _goToHome();
+      }
+    }
+    _fromSettings = false;
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     _subscription.cancel();
     super.dispose();

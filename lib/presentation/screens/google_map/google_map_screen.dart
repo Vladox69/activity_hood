@@ -36,19 +36,54 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         preferredSize: Size.fromHeight(50),
         child: AppBarWidget(),
       ),
-      body: Consumer<CurrentMarkerProvider>(
-        builder: (_, controller, __) => GoogleMap(
-          initialCameraPosition: controller.initialCameraPosition,
-          myLocationButtonEnabled: true,
-          myLocationEnabled: true,
-          zoomControlsEnabled: false,
-          markers: controller.markers,
-          onTap: (position) {
-            controller.setTemporaryMarker(position);
-            _showLocationModal(context);
+      body: Selector<CurrentMarkerProvider, bool>(
+          builder: (context, loading, loadingWidget) {
+            if (loading) {
+              return loadingWidget!;
+            }
+            return Consumer<CurrentMarkerProvider>(
+                builder: (_, controller, __) {
+              if (!controller.gpsEnabled) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "To use our app we need the acces to yout location,\n so you must enable the GPS",
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            final controller =
+                                context.read<CurrentMarkerProvider>();
+                            controller.turnOnGPS();
+                          },
+                          child: const Text("Turn on GPS"))
+                    ],
+                  ),
+                );
+              }
+
+              return GoogleMap(
+                initialCameraPosition: controller.initialCameraPosition,
+                myLocationButtonEnabled: true,
+                myLocationEnabled: true,
+                zoomControlsEnabled: false,
+                markers: controller.markers,
+                onTap: (position) {
+                  controller.setTemporaryMarker(position);
+                  _showLocationModal(context);
+                },
+              );
+            });
           },
-        ),
-      ),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+          selector: (_, controller) => controller.loading),
       bottomNavigationBar: const BottomBarWidget(),
     );
   }
