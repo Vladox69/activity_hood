@@ -77,6 +77,16 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                   controller.setTemporaryMarker(position);
                   _showLocationModal(context);
                 },
+                polylines: {
+                  if (controller.route != null)
+                    Polyline(
+                        polylineId: const PolylineId("overview_polyline"),
+                        color: Colors.red,
+                        width: 5,
+                        points: controller.route!.polylinePoints
+                            .map((e) => LatLng(e.latitude, e.longitude))
+                            .toList())
+                },
               );
             });
           },

@@ -1,5 +1,7 @@
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
+import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 class DescriptionModal extends StatelessWidget {
@@ -9,7 +11,7 @@ class DescriptionModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<CurrentMarkerProvider>();
     final marker = state.selectedMarker;
-
+    final current = state.currentPosition;
     if (marker == null) {
       return const SizedBox
           .shrink(); // Evita mostrar el modal si no hay marcador seleccionado
@@ -89,7 +91,22 @@ class DescriptionModal extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
-
+            ElevatedButton(
+              onPressed: () async {
+                if (current != null) {
+                  final origin = LatLng(current.latitude, current.longitude);
+                  final destination = LatLng(marker.latitude, marker.longitude);
+                  final directionService = await DirectionService()
+                      .getDirections(origin: origin, destination: destination);
+                  print('😁 $directionService');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(16),
+              ),
+              child: const Text("Como llegar"),
+            ),
             // Botón para cerrar el modal
             Align(
               alignment: Alignment.centerRight,

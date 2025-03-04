@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -25,7 +26,11 @@ class CurrentMarkerProvider extends ChangeNotifier {
   CameraPosition get initialCameraPosition => CameraPosition(
       target: LatLng(_initialPosition!.latitude, _initialPosition!.longitude),
       zoom: 15);
+  Position? _currentPosition;
+  Position? get currentPosition => _currentPosition;
 
+  DirectionModel? _route;
+  DirectionModel? get route => _route;
   // Getter para el marcador temporal
   Set<Marker> _generateMarkers() {
     final Set<Marker> allMarkers = {
@@ -73,6 +78,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
     bool initialized = false;
     await _positionSubscription?.cancel();
     _positionSubscription = Geolocator.getPositionStream().listen((position) {
+      _currentPosition = position;
       if (!initialized) {
         _setInitialPosition(position);
         initialized = true;
