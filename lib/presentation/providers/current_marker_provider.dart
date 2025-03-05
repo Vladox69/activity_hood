@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
+import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -126,6 +127,14 @@ class CurrentMarkerProvider extends ChangeNotifier {
 
       _markersList.add(newMarker);
       _currentMarker = null; // Eliminar el marcador temporal
+      notifyListeners();
+    }
+  }
+
+  Future<void> setRoute(LatLng origin, LatLng destination) async {
+    if (currentMarker != null) {
+      _route = await DirectionService()
+          .getDirections(origin: origin, destination: destination);
       notifyListeners();
     }
   }

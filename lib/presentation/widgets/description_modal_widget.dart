@@ -1,5 +1,4 @@
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
-import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -96,9 +95,7 @@ class DescriptionModal extends StatelessWidget {
                 if (current != null) {
                   final origin = LatLng(current.latitude, current.longitude);
                   final destination = LatLng(marker.latitude, marker.longitude);
-                  final directionService = await DirectionService()
-                      .getDirections(origin: origin, destination: destination);
-                  print('😁 $directionService');
+                  await state.setRoute(origin, destination);
                 }
               },
               style: ElevatedButton.styleFrom(

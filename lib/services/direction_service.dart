@@ -18,7 +18,6 @@ class DirectionService {
       'destination': '${destination.latitude},${destination.longitude}',
       'key': googleAPIKey
     });
-    print(response.realUri);
     if (response.statusCode == 200) {
       return DirectionModel.fromMap(response.data);
     }
