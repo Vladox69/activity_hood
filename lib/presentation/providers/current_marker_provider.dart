@@ -85,6 +85,12 @@ class CurrentMarkerProvider extends ChangeNotifier {
         initialized = true;
         notifyListeners();
       }
+      /*if (_selectedMarker != null) {
+        setRoute(
+          LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          LatLng(_selectedMarker!.latitude, _selectedMarker!.longitude),
+        );
+      }*/
     }, onError: (e) {
       if (e is LocationServiceDisabledException) {
         _gpsEnabled = false;
@@ -101,6 +107,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
       icon: BitmapDescriptor.defaultMarkerWithHue(
           BitmapDescriptor.hueBlue), // Color diferente
     );
+    _selectedMarker = null;
     notifyListeners();
   }
 
@@ -132,7 +139,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
   }
 
   Future<void> setRoute(LatLng origin, LatLng destination) async {
-    if (currentMarker != null) {
+    if (selectedMarker != null) {
       _route = await DirectionService()
           .getDirections(origin: origin, destination: destination);
       notifyListeners();
