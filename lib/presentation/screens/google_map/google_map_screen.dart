@@ -1,6 +1,7 @@
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
 import 'package:activity_hood/presentation/widgets/app_bar_widget.dart';
 import 'package:activity_hood/presentation/widgets/bottom_bar_widget.dart';
+import 'package:activity_hood/presentation/widgets/category_buttons_widget.dart';
 import 'package:activity_hood/presentation/widgets/description_modal_widget.dart';
 import 'package:activity_hood/presentation/widgets/location_modal_widget.dart';
 import 'package:flutter/material.dart';
@@ -36,64 +37,73 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         preferredSize: Size.fromHeight(50),
         child: AppBarWidget(),
       ),
-      body: Selector<CurrentMarkerProvider, bool>(
-          builder: (context, loading, loadingWidget) {
-            if (loading) {
-              return loadingWidget!;
-            }
-            return Consumer<CurrentMarkerProvider>(
-                builder: (_, controller, __) {
-              if (!controller.gpsEnabled) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        "To use our app we need the acces to yout location,\n so you must enable the GPS",
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ElevatedButton(
-                          onPressed: () {
-                            final controller =
-                                context.read<CurrentMarkerProvider>();
-                            controller.turnOnGPS();
-                          },
-                          child: const Text("Turn on GPS"))
-                    ],
-                  ),
-                );
+      body: Stack(
+        children: [
+          Selector<CurrentMarkerProvider, bool>(
+            builder: (context, loading, loadingWidget) {
+              if (loading) {
+                return loadingWidget!;
               }
+              return Consumer<CurrentMarkerProvider>(
+                builder: (_, controller, __) {
+                  if (!controller.gpsEnabled) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "To use our app we need access to your location,\nso you must enable the GPS",
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              final controller =
+                                  context.read<CurrentMarkerProvider>();
+                              controller.turnOnGPS();
+                            },
+                            child: const Text("Turn on GPS"),
+                          )
+                        ],
+                      ),
+                    );
+                  }
 
-              return GoogleMap(
-                initialCameraPosition: controller.initialCameraPosition,
-                myLocationButtonEnabled: true,
-                myLocationEnabled: true,
-                zoomControlsEnabled: false,
-                markers: controller.markers,
-                onTap: (position) {
-                  controller.setTemporaryMarker(position);
-                  _showLocationModal(context);
-                },
-                polylines: {
-                  if (controller.route != null)
-                    Polyline(
-                        polylineId: const PolylineId("overview_polyline"),
-                        color: Colors.red,
-                        width: 5,
-                        points: controller.route!.polylinePoints
-                            .map((e) => LatLng(e.latitude, e.longitude))
-                            .toList())
+                  return GoogleMap(
+                    initialCameraPosition: controller.initialCameraPosition,
+                    myLocationButtonEnabled: true,
+                    myLocationEnabled: true,
+                    zoomControlsEnabled: false,
+                    markers: controller.markers,
+                    onTap: (position) {
+                      controller.setTemporaryMarker(position);
+                      _showLocationModal(context);
+                    },
+                    polylines: {
+                      if (controller.route != null)
+                        Polyline(
+                          polylineId: const PolylineId("overview_polyline"),
+                          color: Colors.red,
+                          width: 5,
+                          points: controller.route!.polylinePoints
+                              .map((e) => LatLng(e.latitude, e.longitude))
+                              .toList(),
+                        ),
+                    },
+                  );
                 },
               );
-            });
-          },
-          child: const Center(
-            child: CircularProgressIndicator(),
+            },
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+            selector: (_, controller) => controller.loading,
           ),
-          selector: (_, controller) => controller.loading),
+
+          /// 🔹 Botones estilo Google Maps
+          const CategoryButtonsWidget(),
+        ],
+      ),
       bottomNavigationBar: const BottomBarWidget(),
     );
   }

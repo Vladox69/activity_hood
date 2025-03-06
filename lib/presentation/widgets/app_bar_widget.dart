@@ -26,13 +26,10 @@ class _AppBarWidgetState extends State<AppBarWidget> {
           // prefixIcon: const Icon(Icons.location_on_outlined)
         ),
         readOnly: true,
-        onTap: (){
-
-        },
+        onTap: () {},
       ),
       backgroundColor: Colors.transparent,
       elevation: 0,
-      
     );
   }
 }
