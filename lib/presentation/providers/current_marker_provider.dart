@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
-import 'package:activity_hood/presentation/helpers/asset_to_bytes.dart';
 import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,8 +9,8 @@ import 'package:uuid/uuid.dart';
 
 class CurrentMarkerProvider extends ChangeNotifier {
   final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
-  Future<Set<Marker>> get markers async =>
-      _generateMarkers(); // Se genera dinámicamente
+  Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
+  final List<MarkerModel> _filteredMarkersList = []; // Lista auxiliar filtrada
   Marker? get currentMarker => _currentMarker;
   MarkerModel? get selectedMarker => _selectedMarker;
   Marker? _currentMarker; // Marcador temporal
@@ -34,23 +33,17 @@ class CurrentMarkerProvider extends ChangeNotifier {
   DirectionModel? _route;
   DirectionModel? get route => _route;
   // Getter para el marcador temporal
-  Future<Set<Marker>> _generateMarkers() async {
-    final Set<Marker> allMarkers = {};
-
-    for (var m in _markersList) {
-      final icon = await _getCategoryIcon(
-          m.iconName); // Esperar a que el ícono se genere
-
-      allMarkers.add(
-        Marker(
-          markerId: MarkerId(m.id),
-          position: LatLng(m.latitude, m.longitude),
-          infoWindow: InfoWindow(title: m.title, snippet: m.description),
-          onTap: () => _markersController.sink.add(m.id),
-          icon: icon, // Usa el ícono personalizado
-        ),
-      );
-    }
+  Set<Marker> _generateMarkers() {
+    final Set<Marker> allMarkers = {
+      ...(_filteredMarkersList.isNotEmpty ? _filteredMarkersList : _markersList)
+          .map((m) => Marker(
+                markerId: MarkerId(m.id),
+                position: LatLng(m.latitude, m.longitude),
+                infoWindow: InfoWindow(title: m.title, snippet: m.description),
+                onTap: () => _markersController.sink.add(m.id),
+                icon: _getCategoryIcon(m.iconName),
+              ))
+    };
 
     if (_currentMarker != null) {
       allMarkers.add(_currentMarker!);
@@ -155,27 +148,47 @@ class CurrentMarkerProvider extends ChangeNotifier {
     }
   }
 
-  Future<BitmapDescriptor> _getCategoryIcon(String category) async {
+  void filterMarkers(String category) {
+    _filteredMarkersList.clear();
+    _filteredMarkersList
+        .addAll(_markersList.where((marker) => marker.iconName == category));
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    _filteredMarkersList.clear(); // Vaciar la lista filtrada
+    notifyListeners();
+  }
+
+  //TODO: cambiar por marcador con icono personalizado
+  BitmapDescriptor _getCategoryIcon(String category) {
     String assetPath;
+    double bitmapDescriptor;
     switch (category) {
-      case "Restaurante":
+      case "Restaurantes":
         assetPath = "assets/electric-guitar.png";
+        bitmapDescriptor = BitmapDescriptor.hueCyan;
         break;
-      case "Parque":
+      case "Parques":
         assetPath = "assets/red-carpet.png";
+        bitmapDescriptor = BitmapDescriptor.hueGreen;
         break;
-      case "Museo":
+      case "Museos":
         assetPath = "assets/restaurant.png";
+        bitmapDescriptor = BitmapDescriptor.hueMagenta;
         break;
-      case "Tienda":
+      case "Tiendas":
         assetPath = "assets/ticket.png";
+        bitmapDescriptor = BitmapDescriptor.hueViolet;
         break;
       default:
         assetPath = "assets/ticket.png";
+        bitmapDescriptor = BitmapDescriptor.hueOrange;
         break;
     }
 
-    return BitmapDescriptor.bytes(await assetToByte(assetPath));
+    //return BitmapDescriptor.bytes(await assetToByte(assetPath));
+    return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
   }
 
   void clearMarkers() {

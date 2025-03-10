@@ -20,11 +20,11 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
   String? _selectedCategory; // Estado para la categoría seleccionada
 
   final List<String> _categories = [
-    "Restaurante",
-    "Parque",
-    "Museo",
-    "Tienda",
-    "Otro"
+    "Restaurantes",
+    "Parques",
+    "Museos",
+    "Tiendas",
+    "Otros"
   ];
 
   Future<void> _selectDate(
