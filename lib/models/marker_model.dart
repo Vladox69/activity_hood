@@ -8,18 +8,19 @@ class MarkerModel {
   final String endDate;
   final String startTime;
   final String endTime;
+  final String iconName;
 
-  MarkerModel({
-    required this.id,
-    required this.latitude,
-    required this.longitude,
-    required this.title,
-    required this.description,
-    required this.startDate,
-    required this.endDate,
-    required this.startTime,
-    required this.endTime,
-  });
+  MarkerModel(
+      {required this.id,
+      required this.latitude,
+      required this.longitude,
+      required this.title,
+      required this.description,
+      required this.startDate,
+      required this.endDate,
+      required this.startTime,
+      required this.endTime,
+      required this.iconName});
 
   // Método para convertir a Map (útil para Firebase o almacenamiento)
   Map<String, dynamic> toMap() {
@@ -33,21 +34,22 @@ class MarkerModel {
       'endDate': endDate,
       'startTime': startTime,
       'endTime': endTime,
+      'iconName': iconName
     };
   }
 
   // Método para crear una instancia desde un Map (ej. JSON o BD)
   factory MarkerModel.fromMap(Map<String, dynamic> map) {
     return MarkerModel(
-      id: map['id'],
-      latitude: map['latitude'],
-      longitude: map['longitude'],
-      title: map['title'],
-      description: map['description'],
-      startDate: map['startDate'],
-      endDate: map['endDate'],
-      startTime: map['startTime'],
-      endTime: map['endTime'],
-    );
+        id: map['id'],
+        latitude: map['latitude'],
+        longitude: map['longitude'],
+        title: map['title'],
+        description: map['description'],
+        startDate: map['startDate'],
+        endDate: map['endDate'],
+        startTime: map['startTime'],
+        endTime: map['endTime'],
+        iconName: map['iconName']);
   }
 }

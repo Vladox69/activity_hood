@@ -1,16 +1,17 @@
 import 'dart:async';
 import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
+import 'package:activity_hood/presentation/helpers/asset_to_bytes.dart';
 import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter/foundation.dart';
 
 class CurrentMarkerProvider extends ChangeNotifier {
   final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
-  Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
+  Future<Set<Marker>> get markers async =>
+      _generateMarkers(); // Se genera dinámicamente
   Marker? get currentMarker => _currentMarker;
   MarkerModel? get selectedMarker => _selectedMarker;
   Marker? _currentMarker; // Marcador temporal
@@ -33,15 +34,23 @@ class CurrentMarkerProvider extends ChangeNotifier {
   DirectionModel? _route;
   DirectionModel? get route => _route;
   // Getter para el marcador temporal
-  Set<Marker> _generateMarkers() {
-    final Set<Marker> allMarkers = {
-      ..._markersList.map((m) => Marker(
-            markerId: MarkerId(m.id),
-            position: LatLng(m.latitude, m.longitude),
-            infoWindow: InfoWindow(title: m.title, snippet: m.description),
-            onTap: () => _markersController.sink.add(m.id),
-          )),
-    };
+  Future<Set<Marker>> _generateMarkers() async {
+    final Set<Marker> allMarkers = {};
+
+    for (var m in _markersList) {
+      final icon = await _getCategoryIcon(
+          m.iconName); // Esperar a que el ícono se genere
+
+      allMarkers.add(
+        Marker(
+          markerId: MarkerId(m.id),
+          position: LatLng(m.latitude, m.longitude),
+          infoWindow: InfoWindow(title: m.title, snippet: m.description),
+          onTap: () => _markersController.sink.add(m.id),
+          icon: icon, // Usa el ícono personalizado
+        ),
+      );
+    }
 
     if (_currentMarker != null) {
       allMarkers.add(_currentMarker!);
@@ -116,21 +125,21 @@ class CurrentMarkerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void saveMarker(String title, String description, String startDate,
-      String endDate, String startTime, String endTime) {
+  Future<void> saveMarker(String title, String description, String startDate,
+      String endDate, String startTime, String endTime, String category) async {
     if (_currentMarker != null) {
       final savedMarkerId = const Uuid().v4(); // ID único
       final newMarker = MarkerModel(
-        id: savedMarkerId,
-        latitude: _currentMarker!.position.latitude,
-        longitude: _currentMarker!.position.longitude,
-        title: title,
-        description: description,
-        startDate: startDate,
-        endDate: endDate,
-        startTime: startTime,
-        endTime: endTime,
-      );
+          id: savedMarkerId,
+          latitude: _currentMarker!.position.latitude,
+          longitude: _currentMarker!.position.longitude,
+          title: title,
+          description: description,
+          startDate: startDate,
+          endDate: endDate,
+          startTime: startTime,
+          endTime: endTime,
+          iconName: category);
 
       _markersList.add(newMarker);
       _currentMarker = null; // Eliminar el marcador temporal
@@ -144,6 +153,29 @@ class CurrentMarkerProvider extends ChangeNotifier {
           .getDirections(origin: origin, destination: destination);
       notifyListeners();
     }
+  }
+
+  Future<BitmapDescriptor> _getCategoryIcon(String category) async {
+    String assetPath;
+    switch (category) {
+      case "Restaurante":
+        assetPath = "assets/electric-guitar.png";
+        break;
+      case "Parque":
+        assetPath = "assets/red-carpet.png";
+        break;
+      case "Museo":
+        assetPath = "assets/restaurant.png";
+        break;
+      case "Tienda":
+        assetPath = "assets/ticket.png";
+        break;
+      default:
+        assetPath = "assets/ticket.png";
+        break;
+    }
+
+    return BitmapDescriptor.bytes(await assetToByte(assetPath));
   }
 
   void clearMarkers() {

@@ -16,6 +16,8 @@ class GoogleMapScreen extends StatefulWidget {
 }
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
+  Set<Marker> markers = {};
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +28,16 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         markerProvider.setSelectedMarker(id);
         _showDescriptionModal(context);
       }
+    });
+    loadMarkers();
+  }
+
+  void loadMarkers() async {
+    final markerProvider =
+        Provider.of<CurrentMarkerProvider>(context, listen: false);
+    final markerSet = await markerProvider.markers;
+    setState(() {
+      markers = markerSet;
     });
   }
 
@@ -74,7 +86,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                     myLocationButtonEnabled: true,
                     myLocationEnabled: true,
                     zoomControlsEnabled: false,
-                    markers: controller.markers,
+                    markers: markers,
                     onTap: (position) {
                       controller.setTemporaryMarker(position);
                       _showLocationModal(context);
