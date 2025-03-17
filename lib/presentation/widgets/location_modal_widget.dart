@@ -37,33 +37,6 @@ class LocationModal extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _actionButton(
-                  icon: Icons.directions,
-                  label: 'Cómo llegar',
-                  onPressed: () {
-                    print('Navegar hacia esta ubicación');
-                  },
-                ),
-                _actionButton(
-                  icon: Icons.share,
-                  label: 'Compartir',
-                  onPressed: () {
-                    print('Compartir ubicación');
-                  },
-                ),
-                _actionButton(
-                  icon: Icons.bookmark,
-                  label: 'Guardar',
-                  onPressed: () {
-                    print('Ubicación guardada');
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
                 // Antes de navegar, asegúrate de que el CurrentMarkerProvider está disponible

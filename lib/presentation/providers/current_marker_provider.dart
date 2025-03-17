@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:activity_hood/constants/Category.dart';
 import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
 import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 class CurrentMarkerProvider extends ChangeNotifier {
@@ -32,6 +34,9 @@ class CurrentMarkerProvider extends ChangeNotifier {
 
   DirectionModel? _route;
   DirectionModel? get route => _route;
+  String get selectedCategory => _selectedCategory;
+  String _selectedCategory = "";
+
   // Getter para el marcador temporal
   Set<Marker> _generateMarkers() {
     final Set<Marker> allMarkers = {
@@ -150,8 +155,15 @@ class CurrentMarkerProvider extends ChangeNotifier {
 
   void filterMarkers(String category) {
     _filteredMarkersList.clear();
-    _filteredMarkersList
-        .addAll(_markersList.where((marker) => marker.iconName == category));
+    if (_selectedCategory == category) {
+      _filteredMarkersList
+          .addAll(_markersList); // Restaurar todos los marcadores
+      _selectedCategory = "";
+    } else {
+      _filteredMarkersList
+          .addAll(_markersList.where((marker) => marker.iconName == category));
+      _selectedCategory = category;
+    }
     notifyListeners();
   }
 
@@ -165,19 +177,19 @@ class CurrentMarkerProvider extends ChangeNotifier {
     String assetPath;
     double bitmapDescriptor;
     switch (category) {
-      case "Restaurantes":
+      case Category.FOOD:
         assetPath = "assets/electric-guitar.png";
         bitmapDescriptor = BitmapDescriptor.hueCyan;
         break;
-      case "Parques":
+      case Category.CONCERT:
         assetPath = "assets/red-carpet.png";
         bitmapDescriptor = BitmapDescriptor.hueGreen;
         break;
-      case "Museos":
+      case Category.GARAGE_SALE:
         assetPath = "assets/restaurant.png";
         bitmapDescriptor = BitmapDescriptor.hueMagenta;
         break;
-      case "Tiendas":
+      case Category.PARK:
         assetPath = "assets/ticket.png";
         bitmapDescriptor = BitmapDescriptor.hueViolet;
         break;
@@ -189,6 +201,18 @@ class CurrentMarkerProvider extends ChangeNotifier {
 
     //return BitmapDescriptor.bytes(await assetToByte(assetPath));
     return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
+  }
+
+  void shareLocation(double latitude, double longitude) {
+    final String googleMapsUrl =
+        "https://www.google.com/maps?q=$latitude,$longitude";
+
+    Share.share("¡Mira esta ubicación! 📍\n$googleMapsUrl");
+  }
+
+  void setSelectedCategory(String category) {
+    _selectedCategory = category;
+    notifyListeners();
   }
 
   void clearMarkers() {

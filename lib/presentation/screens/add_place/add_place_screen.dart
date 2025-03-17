@@ -1,3 +1,4 @@
+import 'package:activity_hood/constants/Category.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
@@ -20,11 +21,11 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
   String? _selectedCategory; // Estado para la categoría seleccionada
 
   final List<String> _categories = [
-    "Restaurantes",
-    "Parques",
-    "Museos",
-    "Tiendas",
-    "Otros"
+    Category.FOOD,
+    Category.CONCERT,
+    Category.GARAGE_SALE,
+    Category.PARK,
+    Category.OTHER
   ];
 
   Future<void> _selectDate(
@@ -127,6 +128,7 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
                       _startTimeController.text,
                       _endTimeController.text,
                       _selectedCategory!);
+                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 child: const Text("Guardar Lugar"),

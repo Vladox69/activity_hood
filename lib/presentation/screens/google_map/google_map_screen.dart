@@ -1,6 +1,6 @@
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
 import 'package:activity_hood/presentation/widgets/app_bar_widget.dart';
-import 'package:activity_hood/presentation/widgets/bottom_bar_widget.dart';
+//import 'package:activity_hood/presentation/widgets/bottom_bar_widget.dart';
 import 'package:activity_hood/presentation/widgets/category_buttons_widget.dart';
 import 'package:activity_hood/presentation/widgets/description_modal_widget.dart';
 import 'package:activity_hood/presentation/widgets/location_modal_widget.dart';
@@ -104,7 +104,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           const CategoryButtonsWidget(),
         ],
       ),
-      bottomNavigationBar: const BottomBarWidget(),
+      //bottomNavigationBar: const BottomBarWidget(),
     );
   }
 

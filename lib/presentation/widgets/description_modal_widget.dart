@@ -90,34 +90,54 @@ class DescriptionModal extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                if (current != null) {
-                  final origin = LatLng(current.latitude, current.longitude);
-                  final destination = LatLng(marker.latitude, marker.longitude);
-                  await state.setRoute(origin, destination);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(16),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              _actionButton(
+                icon: Icons.directions,
+                label: 'Cómo llegar',
+                onPressed: () async {
+                  if (current != null) {
+                    final origin = LatLng(current.latitude, current.longitude);
+                    final destination =
+                        LatLng(marker.latitude, marker.longitude);
+                    await state.setRoute(origin, destination);
+                  }
+                },
               ),
-              child: const Text("Como llegar"),
-            ),
-            // Botón para cerrar el modal
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cerrar',
-                  style: TextStyle(color: Colors.blue),
-                ),
+              _actionButton(
+                icon: Icons.share,
+                label: 'Compartir',
+                onPressed: () {
+                  state.shareLocation(marker.latitude, marker.longitude);
+                },
               ),
-            ),
+            ]),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _actionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(16),
+          ),
+          child: Icon(icon),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
     );
   }
 }

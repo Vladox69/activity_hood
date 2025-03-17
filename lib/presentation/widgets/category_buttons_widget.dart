@@ -1,3 +1,4 @@
+import 'package:activity_hood/constants/Category.dart';
 import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,11 +16,13 @@ class CategoryButtonsWidget extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _buildGoogleMapsButton(Icons.restaurant, 'Restaurantes', context),
-            _buildGoogleMapsButton(Icons.hotel, 'Hoteles', context),
-            _buildGoogleMapsButton(Icons.park, 'Parques', context),
+            _buildGoogleMapsButton(Icons.restaurant, Category.FOOD, context),
+            _buildGoogleMapsButton(Icons.hotel, Category.CONCERT, context),
+            _buildGoogleMapsButton(Icons.park, Category.PARK, context),
             _buildGoogleMapsButton(
-                Icons.local_gas_station, 'Gasolineras', context),
+                Icons.local_gas_station, Category.GARAGE_SALE, context),
+            _buildGoogleMapsButton(
+                Icons.control_point_duplicate_sharp, Category.OTHER, context),
           ],
         ),
       ),
@@ -28,11 +31,11 @@ class CategoryButtonsWidget extends StatelessWidget {
 
   Widget _buildGoogleMapsButton(
       IconData icon, String label, BuildContext context) {
+    final controller = context.read<CurrentMarkerProvider>();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: ElevatedButton.icon(
         onPressed: () {
-          final controller = context.read<CurrentMarkerProvider>();
           controller.filterMarkers(label);
         },
         icon: Icon(icon, size: 18), // Icono más pequeño
