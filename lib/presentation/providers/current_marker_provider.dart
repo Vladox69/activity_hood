@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:activity_hood/constants/Category.dart';
 import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
+import 'package:activity_hood/presentation/helpers/asset_to_bytes.dart';
 import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,7 +12,8 @@ import 'package:uuid/uuid.dart';
 
 class CurrentMarkerProvider extends ChangeNotifier {
   final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
-  Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
+  final Map<MarkerId, Marker> _markers = {};
+  Set<Marker> get markers => _markers.values.toSet(); // Se genera dinámicamente
   final List<MarkerModel> _filteredMarkersList = []; // Lista auxiliar filtrada
   Marker? get currentMarker => _currentMarker;
   MarkerModel? get selectedMarker => _selectedMarker;
@@ -46,7 +48,6 @@ class CurrentMarkerProvider extends ChangeNotifier {
                 position: LatLng(m.latitude, m.longitude),
                 infoWindow: InfoWindow(title: m.title, snippet: m.description),
                 onTap: () => _markersController.sink.add(m.id),
-                icon: _getCategoryIcon(m.iconName),
               ))
     };
 
@@ -107,13 +108,14 @@ class CurrentMarkerProvider extends ChangeNotifier {
   }
 
   void setTemporaryMarker(LatLng position) {
-    const id = "current-marker"; // ID fijo para el marcador temporal
+    const id = MarkerId("current"); // ID fijo para el marcador temporal
     _currentMarker = Marker(
-      markerId: const MarkerId(id),
+      markerId: id,
       position: position,
       icon: BitmapDescriptor.defaultMarkerWithHue(
           BitmapDescriptor.hueBlue), // Color diferente
     );
+    _markers[id] = _currentMarker!;
     _selectedMarker = null;
     notifyListeners();
   }
@@ -127,7 +129,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
       String endDate, String startTime, String endTime, String category) async {
     if (_currentMarker != null) {
       final savedMarkerId = const Uuid().v4(); // ID único
-      final newMarker = MarkerModel(
+      /*final newMarker = MarkerModel(
           id: savedMarkerId,
           latitude: _currentMarker!.position.latitude,
           longitude: _currentMarker!.position.longitude,
@@ -139,7 +141,11 @@ class CurrentMarkerProvider extends ChangeNotifier {
           endTime: endTime,
           iconName: category);
 
-      _markersList.add(newMarker);
+      _markersList.add(newMarker);*/
+      final id = MarkerId(savedMarkerId);
+      final icon = await _getCategoryIcon(category);
+      _markers[id] =
+          Marker(markerId: id, position: _currentMarker!.position, icon: icon);
       _currentMarker = null; // Eliminar el marcador temporal
       notifyListeners();
     }
@@ -172,8 +178,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //TODO: cambiar por marcador con icono personalizado
-  BitmapDescriptor _getCategoryIcon(String category) {
+  Future<BitmapDescriptor> _getCategoryIcon(String category) async {
     String assetPath;
     double bitmapDescriptor;
     switch (category) {
@@ -185,11 +190,11 @@ class CurrentMarkerProvider extends ChangeNotifier {
         assetPath = "assets/red-carpet.png";
         bitmapDescriptor = BitmapDescriptor.hueGreen;
         break;
-      case Category.GARAGE_SALE:
+      case Category.PARK:
         assetPath = "assets/restaurant.png";
         bitmapDescriptor = BitmapDescriptor.hueMagenta;
         break;
-      case Category.PARK:
+      case Category.GARAGE_SALE:
         assetPath = "assets/ticket.png";
         bitmapDescriptor = BitmapDescriptor.hueViolet;
         break;
@@ -199,8 +204,8 @@ class CurrentMarkerProvider extends ChangeNotifier {
         break;
     }
 
-    //return BitmapDescriptor.bytes(await assetToByte(assetPath));
-    return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
+    return BitmapDescriptor.bytes(await assetToByte(assetPath));
+    //return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
   }
 
   void shareLocation(double latitude, double longitude) {

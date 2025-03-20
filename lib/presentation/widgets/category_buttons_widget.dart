@@ -17,10 +17,10 @@ class CategoryButtonsWidget extends StatelessWidget {
         child: Row(
           children: [
             _buildGoogleMapsButton(Icons.restaurant, Category.FOOD, context),
-            _buildGoogleMapsButton(Icons.hotel, Category.CONCERT, context),
+            _buildGoogleMapsButton(Icons.music_note, Category.CONCERT, context),
             _buildGoogleMapsButton(Icons.park, Category.PARK, context),
             _buildGoogleMapsButton(
-                Icons.local_gas_station, Category.GARAGE_SALE, context),
+                Icons.shopify, Category.GARAGE_SALE, context),
             _buildGoogleMapsButton(
                 Icons.control_point_duplicate_sharp, Category.OTHER, context),
           ],

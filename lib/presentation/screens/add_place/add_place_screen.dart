@@ -23,8 +23,8 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
   final List<String> _categories = [
     Category.FOOD,
     Category.CONCERT,
-    Category.GARAGE_SALE,
     Category.PARK,
+    Category.GARAGE_SALE,
     Category.OTHER
   ];
 

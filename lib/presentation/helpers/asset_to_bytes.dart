@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 Future<Uint8List> assetToByte(String path) async {
   final byteData = await rootBundle.load(path);
   final bytes = byteData.buffer.asUint8List();
-  final codec = await ui.instantiateImageCodec(bytes, targetHeight: 100);
+  final codec = await ui.instantiateImageCodec(bytes, targetHeight: 25);
   final frame = await codec.getNextFrame();
   final newByteData =
       await frame.image.toByteData(format: ui.ImageByteFormat.png);
