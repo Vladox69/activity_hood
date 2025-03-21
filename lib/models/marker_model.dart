@@ -9,7 +9,7 @@ class MarkerModel {
   final String startTime;
   final String endTime;
   final String iconName;
-
+  final bool isApproved;
   MarkerModel(
       {required this.id,
       required this.latitude,
@@ -20,7 +20,8 @@ class MarkerModel {
       required this.endDate,
       required this.startTime,
       required this.endTime,
-      required this.iconName});
+      required this.iconName,
+      required this.isApproved});
 
   // Método para convertir a Map (útil para Firebase o almacenamiento)
   Map<String, dynamic> toMap() {
@@ -34,7 +35,8 @@ class MarkerModel {
       'endDate': endDate,
       'startTime': startTime,
       'endTime': endTime,
-      'iconName': iconName
+      'iconName': iconName,
+      'isApproved': isApproved
     };
   }
 
@@ -50,6 +52,7 @@ class MarkerModel {
         endDate: map['endDate'],
         startTime: map['startTime'],
         endTime: map['endTime'],
-        iconName: map['iconName']);
+        iconName: map['iconName'],
+        isApproved: map['isApproved']);
   }
 }

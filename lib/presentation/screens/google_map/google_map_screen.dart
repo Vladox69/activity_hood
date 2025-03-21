@@ -4,6 +4,7 @@ import 'package:activity_hood/presentation/widgets/app_bar_widget.dart';
 import 'package:activity_hood/presentation/widgets/category_buttons_widget.dart';
 import 'package:activity_hood/presentation/widgets/description_modal_widget.dart';
 import 'package:activity_hood/presentation/widgets/location_modal_widget.dart';
+import 'package:activity_hood/utils/map_style.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -70,6 +71,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                   }
 
                   return GoogleMap(
+                    //style: mapStyle,
                     initialCameraPosition: controller.initialCameraPosition,
                     myLocationButtonEnabled: true,
                     myLocationEnabled: true,

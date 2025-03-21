@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: AppTheme(selectedColor: 0).theme(),
-        initialRoute: Routes.SPLASH,
+        initialRoute: Routes.LOGIN,
         routes: appRoutes(),
       ),
     );

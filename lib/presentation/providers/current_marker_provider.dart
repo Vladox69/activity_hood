@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:activity_hood/constants/Category.dart';
 import 'package:activity_hood/models/direction_model.dart';
 import 'package:activity_hood/models/marker_model.dart';
-import 'package:activity_hood/presentation/helpers/asset_to_bytes.dart';
 import 'package:activity_hood/services/direction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,7 +12,7 @@ import 'package:uuid/uuid.dart';
 class CurrentMarkerProvider extends ChangeNotifier {
   final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
   final Map<MarkerId, Marker> _markers = {};
-  Set<Marker> get markers => _markers.values.toSet(); // Se genera dinámicamente
+  Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
   final List<MarkerModel> _filteredMarkersList = []; // Lista auxiliar filtrada
   Marker? get currentMarker => _currentMarker;
   MarkerModel? get selectedMarker => _selectedMarker;
@@ -43,12 +42,13 @@ class CurrentMarkerProvider extends ChangeNotifier {
   Set<Marker> _generateMarkers() {
     final Set<Marker> allMarkers = {
       ...(_filteredMarkersList.isNotEmpty ? _filteredMarkersList : _markersList)
+          .where((m) => m.isApproved)
           .map((m) => Marker(
-                markerId: MarkerId(m.id),
-                position: LatLng(m.latitude, m.longitude),
-                infoWindow: InfoWindow(title: m.title, snippet: m.description),
-                onTap: () => _markersController.sink.add(m.id),
-              ))
+              markerId: MarkerId(m.id),
+              position: LatLng(m.latitude, m.longitude),
+              infoWindow: InfoWindow(title: m.title, snippet: m.description),
+              onTap: () => _markersController.sink.add(m.id),
+              icon: _getCategoryIcon(m.iconName)))
     };
 
     if (_currentMarker != null) {
@@ -129,7 +129,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
       String endDate, String startTime, String endTime, String category) async {
     if (_currentMarker != null) {
       final savedMarkerId = const Uuid().v4(); // ID único
-      /*final newMarker = MarkerModel(
+      final newMarker = MarkerModel(
           id: savedMarkerId,
           latitude: _currentMarker!.position.latitude,
           longitude: _currentMarker!.position.longitude,
@@ -139,13 +139,14 @@ class CurrentMarkerProvider extends ChangeNotifier {
           endDate: endDate,
           startTime: startTime,
           endTime: endTime,
-          iconName: category);
+          iconName: category,
+          isApproved: false);
 
-      _markersList.add(newMarker);*/
-      final id = MarkerId(savedMarkerId);
+      _markersList.add(newMarker);
+      /*final id = MarkerId(savedMarkerId);
       final icon = await _getCategoryIcon(category);
       _markers[id] =
-          Marker(markerId: id, position: _currentMarker!.position, icon: icon);
+          Marker(markerId: id, position: _currentMarker!.position, icon: icon);*/
       _currentMarker = null; // Eliminar el marcador temporal
       notifyListeners();
     }
@@ -178,7 +179,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<BitmapDescriptor> _getCategoryIcon(String category) async {
+  BitmapDescriptor _getCategoryIcon(String category) {
     String assetPath;
     double bitmapDescriptor;
     switch (category) {
@@ -192,7 +193,7 @@ class CurrentMarkerProvider extends ChangeNotifier {
         break;
       case Category.PARK:
         assetPath = "assets/restaurant.png";
-        bitmapDescriptor = BitmapDescriptor.hueMagenta;
+        bitmapDescriptor = 250;
         break;
       case Category.GARAGE_SALE:
         assetPath = "assets/ticket.png";
@@ -204,8 +205,8 @@ class CurrentMarkerProvider extends ChangeNotifier {
         break;
     }
 
-    return BitmapDescriptor.bytes(await assetToByte(assetPath));
-    //return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
+    //return BitmapDescriptor.bytes(await assetToByte(assetPath));
+    return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
   }
 
   void shareLocation(double latitude, double longitude) {
