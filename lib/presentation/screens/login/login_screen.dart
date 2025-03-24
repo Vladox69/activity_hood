@@ -1,4 +1,7 @@
+import 'package:activity_hood/presentation/routes/routes.dart';
+import 'package:activity_hood/presentation/screens/login/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -8,7 +11,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final loginProvider = Provider.of<LoginProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       body: Center(
@@ -32,10 +35,19 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  /*loginProvider.login(
-                    emailController.text,
-                    passwordController.text,
-                  );*/
+                  authProvider.login(
+                      emailController.text, passwordController.text);
+                  if (authProvider.isAuthenticated) {
+                    Navigator.pushReplacementNamed(
+                        context,
+                        authProvider.role == "admin"
+                            ? Routes.ADMIN_HOME
+                            : Routes.USER_HOME);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Credenciales incorrectas')),
+                    );
+                  }
                 },
                 child: const Text('Iniciar Sesión'),
               ),

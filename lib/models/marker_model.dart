@@ -55,4 +55,21 @@ class MarkerModel {
         iconName: map['iconName'],
         isApproved: map['isApproved']);
   }
+
+  // Método para copiar el modelo con cambios
+  MarkerModel copyWith({bool? isApproved}) {
+    return MarkerModel(
+      id: id,
+      latitude: latitude,
+      longitude: longitude,
+      title: title,
+      description: description,
+      startDate: startDate,
+      endDate: endDate,
+      startTime: startTime,
+      endTime: endTime,
+      iconName: iconName,
+      isApproved: isApproved ?? this.isApproved,
+    );
+  }
 }

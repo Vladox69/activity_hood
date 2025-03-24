@@ -1,6 +1,6 @@
-import 'package:activity_hood/presentation/screens/splash/splash_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'splash_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,27 +10,33 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final _controller = SplashController(Permission.locationWhenInUse);
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.checkPermission();
-    });
-    _controller.addListener(() {
-      if (_controller.routeName != null) {
-        Navigator.pushReplacementNamed(context, _controller.routeName!);
+    Future.microtask(() {
+      if (mounted) {
+        Provider.of<SplashController>(context, listen: false)
+            .checkStatus(context);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
+    return Consumer<SplashController>(
+      builder: (context, splashController, child) {
+        if (splashController.routeName != null && mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.pushReplacementNamed(
+                  context, splashController.routeName!);
+            }
+          });
+        }
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      },
     );
   }
 }

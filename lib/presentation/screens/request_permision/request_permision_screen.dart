@@ -22,41 +22,41 @@ class _RequestPermisionScreenState extends State<RequestPermisionScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _subscription = _controller.onStatusChanged.listen((status) {
+      if (!mounted) return; // Verifica si el widget aún está en la pantalla
+
       switch (status) {
         case PermissionStatus.granted:
           _goToHome();
           break;
         case PermissionStatus.permanentlyDenied:
-          //openAppSettings();
           showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    title: const Text("INFO"),
-                    content: const Text(
-                        "Ingresa a ajustes para dar los permisos de ubicación"),
-                    actions: [
-                      TextButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            _fromSettings = await openAppSettings();
-                          },
-                          child: const Text("Ir a configuraciones")),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Cancelar"))
-                    ],
-                  ));
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("INFO"),
+              content: const Text(
+                  "Ingresa a ajustes para dar los permisos de ubicación"),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    _fromSettings = await openAppSettings();
+                    if (!mounted) return;
+                  },
+                  child: const Text("Ir a configuraciones"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancelar"),
+                )
+              ],
+            ),
+          );
           break;
-        case PermissionStatus.denied:
-        // TODO: Handle this case.
-        case PermissionStatus.restricted:
-        // TODO: Handle this case.
-        case PermissionStatus.limited:
-        // TODO: Handle this case.
-        case PermissionStatus.provisional:
-        // TODO: Handle this case.
+        default:
+          break;
       }
     });
   }
