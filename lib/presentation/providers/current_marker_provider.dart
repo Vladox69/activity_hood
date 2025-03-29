@@ -162,14 +162,15 @@ class CurrentMarkerProvider extends ChangeNotifier {
   }
 
   void filterMarkers(String category) {
-    _filteredMarkersList.clear();
     if (_selectedCategory == category) {
-      _filteredMarkersList
-          .addAll(_markersList); // Restaurar todos los marcadores
+      // Si la categoría es la misma, restaurar todos los marcadores
+      _filteredMarkersList.clear();
       _selectedCategory = "";
     } else {
+      // Filtrar por la nueva categoría
       _filteredMarkersList
-          .addAll(_markersList.where((marker) => marker.iconName == category));
+        ..clear()
+        ..addAll(_markersList.where((marker) => marker.iconName == category));
       _selectedCategory = category;
     }
     notifyListeners();
@@ -208,6 +209,16 @@ class CurrentMarkerProvider extends ChangeNotifier {
 
     //return BitmapDescriptor.bytes(await assetToByte(assetPath));
     return BitmapDescriptor.defaultMarkerWithHue(bitmapDescriptor);
+  }
+
+  void toggleApproval(String id) {
+    final index = _markersList.indexWhere((marker) => marker.id == id);
+    if (index != -1) {
+      _markersList[index] = _markersList[index].copyWith(
+        isApproved: !_markersList[index].isApproved,
+      );
+      notifyListeners();
+    }
   }
 
   void shareLocation(double latitude, double longitude) {
