@@ -72,7 +72,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                   return GoogleMap(
                     //style: mapStyle,
                     initialCameraPosition: controller.initialCameraPosition,
-                    myLocationButtonEnabled: true,
+                    myLocationButtonEnabled: false,
                     myLocationEnabled: true,
                     zoomControlsEnabled: false,
                     markers: controller.markers,

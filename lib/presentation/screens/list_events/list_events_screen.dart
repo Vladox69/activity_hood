@@ -1,5 +1,7 @@
 import 'package:activity_hood/models/marker_model.dart';
+import 'package:activity_hood/presentation/providers/current_marker_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ListEventsScreen extends StatefulWidget {
   const ListEventsScreen({super.key});
@@ -35,6 +37,7 @@ class _ListEventsScreenState extends State<ListEventsScreen> {
         iconName: "food",
         isApproved: false),
   ];
+
   void approveEvent(String id) {
     setState(() {
       final index = events.indexWhere((event) => event.id == id);
@@ -50,10 +53,26 @@ class _ListEventsScreenState extends State<ListEventsScreen> {
     });
   }
 
+  void logout() {
+    // Aquí puedes agregar la lógica de cierre de sesión
+    Navigator.pushReplacementNamed(
+        context, "/login"); // Redirige a la pantalla de login
+  }
+
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<CurrentMarkerProvider>(context);
+    final events = provider.markersList.where((m) => (!m.isApproved)).toList();
     return Scaffold(
-      appBar: AppBar(title: const Text("Lista de Eventos")),
+      appBar: AppBar(
+        title: const Text("Lista de Eventos"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: logout,
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: events.length,
         itemBuilder: (context, index) {
@@ -75,10 +94,10 @@ class _ListEventsScreenState extends State<ListEventsScreen> {
                     icon: const Icon(Icons.check, color: Colors.green),
                     onPressed: () => approveEvent(event.id),
                   ),
-                  IconButton(
+                  /*IconButton(
                     icon: const Icon(Icons.close, color: Colors.red),
                     onPressed: () => removeEvent(event.id),
-                  ),
+                  ),*/
                 ],
               ),
             ),

@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 
 class CurrentMarkerProvider extends ChangeNotifier {
   final List<MarkerModel> _markersList = []; // Lista de marcadores guardados
+  List<MarkerModel> get markersList => _markersList;
   final Map<MarkerId, Marker> _markers = {};
   Set<Marker> get markers => _generateMarkers(); // Se genera dinámicamente
   final List<MarkerModel> _filteredMarkersList = []; // Lista auxiliar filtrada

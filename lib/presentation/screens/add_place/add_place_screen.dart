@@ -128,8 +128,29 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
                       _startTimeController.text,
                       _endTimeController.text,
                       _selectedCategory!);
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("INFORMACIÓN"),
+                        content: const Text(
+                            "Evento agregado correctamente. \nDebe esperar a que un administrador lo acepte."),
+                        actions: [
+                          TextButton(
+                            onPressed: () => {Navigator.of(context).pop()},
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  ).then((_) {
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    }
+                  });
                 },
                 child: const Text("Guardar Lugar"),
               ),

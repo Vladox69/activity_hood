@@ -42,7 +42,7 @@ class LoginScreen extends StatelessWidget {
                         context,
                         authProvider.role == "admin"
                             ? Routes.ADMIN_HOME
-                            : Routes.USER_HOME);
+                            : Routes.HOME);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Credenciales incorrectas')),
